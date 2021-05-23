@@ -12,17 +12,18 @@ library(lubridate)
 
 extract_speed_study <- function(filepath){
     
-    if(! pdf_length(fp) == 3L){stop("This pdf is not exactly 3 pages long.")}
-    
+    pdf_n_pages <- pdf_info(filepath) %>% 
+      pluck("pages")
+  
     txt <- pdf_text(filepath) %>% 
-      pluck(3) %>% 
+      pluck(pdf_n_pages) %>% 
       str_remove_all("\\\n")
     
     
     ### LOCATION
     
     txt_location <- pdf_text(filepath) %>% 
-      pluck(3) %>% 
+      pluck(pdf_n_pages) %>% 
       str_split("\\\n") %>% 
       pluck(1) %>% 
       head(3) %>% 
@@ -40,7 +41,7 @@ extract_speed_study <- function(filepath){
     ### DATE AND TIME
     
     txt_datetime <- pdf_text(filepath) %>% 
-      pluck(3) %>% 
+      pluck(pdf_n_pages) %>% 
       str_split("\\\n") %>% 
       pluck(1) %>% 
       head(3) %>% 
@@ -144,6 +145,12 @@ extract_speed_study <- function(filepath){
 
 ### TEST
 
-fp <- "data/SDOT-Speed-Studies/2019_01_03_10932_SGT.pdf"
+fp1 <- "data/SDOT-Speed-Studies/2019_01_03_10932_SGT.pdf"
 
-extract_speed_study(fp) %>% View()
+fp2 <- "data/SDOT-Speed-Studies/2019_01_03_520079_SGT.pdf"
+
+study1 <- extract_speed_study(fp1)
+
+study2 <- extract_speed_study(fp2)
+
+rbind(study1,study2) %>% View()
