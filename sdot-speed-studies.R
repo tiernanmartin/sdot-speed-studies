@@ -7,11 +7,35 @@ library(janitor)
 library(lubridate)
 
 
+# EXPERIMENT --------------------------------------------------------------
+
+studies <- list.files("data/SDOT-Speed-Studies/",
+                      full.names = TRUE)
+
+studies_pdf <- studies %>% 
+  keep(~str_detect(.x, "pdf$"))
+
+studies_pdf_lengths <- map_int(studies_pdf, pdf_length)
+
+summary(studies_pdf_lengths)
+
+tibble(pages = studies_pdf_lengths ) %>% count(pages)
+
+# This suggests that I may need to reduce the number
+# of indicators reported for each site, as the
+# studies conducted by IDAX don't report all of the
+# statistics included in the other (unnamed) studies.
+# 
+# Additionally, it may be worthwhile to extract both 
+# northbound and southbound data, as traffic speed
+# can vary significantly depending on direction.
 
 # CREATE THE PDFTOOLS FUNCTION -------------------------------------------
 
 extract_speed_study <- function(filepath){
     
+  if(!str_detect(filepath,".pdf$")){stop("This file is not a pdf.")}
+  
     pdf_n_pages <- pdf_info(filepath) %>% 
       pluck("pages")
   
